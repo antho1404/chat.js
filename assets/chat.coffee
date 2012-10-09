@@ -1,6 +1,6 @@
 window.Chat = class Chat
 
-  constructor: (@ip, @port) ->
+  constructor: (@ip, @port=1337) ->
     @dom_elem = $("<div class='chat-frame active disable' id='contact_list'><div class='chat-head'>Contacts</div><div class='visibility'/><div class='chat-list'/></div>")
     @conversations = []
     window.WebSocket ||= window.MozWebSocket

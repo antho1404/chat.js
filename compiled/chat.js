@@ -10,7 +10,7 @@
     function Chat(ip, port) {
       var _this;
       this.ip = ip;
-      this.port = port;
+      this.port = port != null ? port : 1337;
       this.dom_elem = $("<div class='chat-frame active disable' id='contact_list'><div class='chat-head'>Contacts</div><div class='visibility'/><div class='chat-list'/></div>");
       this.conversations = [];
       window.WebSocket || (window.WebSocket = window.MozWebSocket);
