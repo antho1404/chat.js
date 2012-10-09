@@ -21,6 +21,8 @@ You need to include the **chat.css** and **chat.js** (located in **compiled** fo
 
 with address: the address of your server without protocole and port: the port for the socket by default 1337 but you can change it in **server.js** file
 
+The chat will be automatically activated/desactivated if your server is up/down
+
 ### Compiling
 If you need to recompile the assets you can use the following commands
 > For coffee files
