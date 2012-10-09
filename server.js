@@ -2,9 +2,6 @@
   "use strict";  var Client, clients, connect, disconnect, getClient, getReceivers, htmlEntities, http, sendReceivers, server, webSocketServer, webSocketsServerPort, wsServer;
   webSocketServer = require("websocket").server;
   http = require("http");
-  htmlEntities = function(str) {
-    return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-  };
   webSocketsServerPort = 1337;
   clients = [];
   server = http.createServer();
@@ -45,6 +42,9 @@
       }
     });
   });
+  htmlEntities = function(str) {
+    return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  };
   sendReceivers = function() {
     var c, _i, _len;
     for (_i = 0, _len = clients.length; _i < _len; _i++) {
