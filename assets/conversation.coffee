@@ -8,12 +8,11 @@ window.Conversation = class Conversation
     @linkDomEvents()
 
   linkDomEvents: ->
-    _this = @
     $(".chat-content", @dom_elem).on
-      click  : (e) -> _this.input.focus()
+      click  : (e) => @input.focus()
     $(".chat-message input").on
-      keydown: (e) -> _this.keydown e
-      keyup  : (e) -> _this.keyup e
+      keydown: (e) => @keydown e
+      keyup  : (e) => @keyup e
 
   writeMessage: (data) ->
     name = if data.from is @chat.name then "me" else data.from

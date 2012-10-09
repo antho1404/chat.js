@@ -3,21 +3,20 @@ window.Chat = class Chat
   constructor: (@ip, @port) ->
     @dom_elem = $("<div class='chat-frame active' id='contact_list'><div class='chat-head'>Contacts</div><div class='visibility'/><div class='chat-list'/></div>")
     @conversations = []
-    _this = @
     window.WebSocket ||= window.MozWebSocket
     return if not window.WebSocket
 
+    _this = @
     $(".chat-head").live 'click', -> $(this).parent(".chat-frame").toggleClass "active"
-    $(".contact").live 'click', -> _this.getOrCreateConversation($(this).html()).activate()
+    $(".contact").live 'click',   -> _this.getOrCreateConversation($(this).html()).activate()
 
     @initializeSocket()
-    setInterval (-> _this.checkConnexion()), 3000
+    setInterval (=> @checkConnexion()), 3000
 
   initializeSocket: ->
-    _this = @
     @socket = new WebSocket "ws://#{@ip}:#{@port}"
-    @socket.onopen    =  -> _this.socketOpen()
-    @socket.onmessage = (message) -> _this.socketMessage message
+    @socket.onopen    =  => @socketOpen()
+    @socket.onmessage = (message) => @socketMessage message
 
   socketOpen: ->
     $("body").append @dom_elem if $("#contact_list").size() is 0

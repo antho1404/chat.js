@@ -1,6 +1,6 @@
 (function() {
   var Chat, Conversation;
-  var __indexOf = Array.prototype.indexOf || function(item) {
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __indexOf = Array.prototype.indexOf || function(item) {
     for (var i = 0, l = this.length; i < l; i++) {
       if (this[i] === item) return i;
     }
@@ -13,11 +13,11 @@
       this.port = port;
       this.dom_elem = $("<div class='chat-frame active' id='contact_list'><div class='chat-head'>Contacts</div><div class='visibility'/><div class='chat-list'/></div>");
       this.conversations = [];
-      _this = this;
       window.WebSocket || (window.WebSocket = window.MozWebSocket);
       if (!window.WebSocket) {
         return;
       }
+      _this = this;
       $(".chat-head").live('click', function() {
         return $(this).parent(".chat-frame").toggleClass("active");
       });
@@ -25,20 +25,18 @@
         return _this.getOrCreateConversation($(this).html()).activate();
       });
       this.initializeSocket();
-      setInterval((function() {
-        return _this.checkConnexion();
-      }), 3000);
+      setInterval((__bind(function() {
+        return this.checkConnexion();
+      }, this)), 3000);
     }
     Chat.prototype.initializeSocket = function() {
-      var _this;
-      _this = this;
       this.socket = new WebSocket("ws://" + this.ip + ":" + this.port);
-      this.socket.onopen = function() {
-        return _this.socketOpen();
-      };
-      return this.socket.onmessage = function(message) {
-        return _this.socketMessage(message);
-      };
+      this.socket.onopen = __bind(function() {
+        return this.socketOpen();
+      }, this);
+      return this.socket.onmessage = __bind(function(message) {
+        return this.socketMessage(message);
+      }, this);
     };
     Chat.prototype.socketOpen = function() {
       if ($("#contact_list").size() === 0) {
@@ -143,20 +141,18 @@
       this.linkDomEvents();
     }
     Conversation.prototype.linkDomEvents = function() {
-      var _this;
-      _this = this;
       $(".chat-content", this.dom_elem).on({
-        click: function(e) {
-          return _this.input.focus();
-        }
+        click: __bind(function(e) {
+          return this.input.focus();
+        }, this)
       });
       return $(".chat-message input").on({
-        keydown: function(e) {
-          return _this.keydown(e);
-        },
-        keyup: function(e) {
-          return _this.keyup(e);
-        }
+        keydown: __bind(function(e) {
+          return this.keydown(e);
+        }, this),
+        keyup: __bind(function(e) {
+          return this.keyup(e);
+        }, this)
       });
     };
     Conversation.prototype.writeMessage = function(data) {
