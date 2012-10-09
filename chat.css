@@ -1,0 +1,53 @@
+.chat-frame {
+  border: solid 2px #cccccc;
+  width: 250px;
+  height: 300px;
+  position: fixed;
+  right: 10px;
+  bottom: -277px;
+  -webkit-transition: bottom 0.2s;
+  -moz-transition: bottom 0.2s;
+  -ms-transition: bottom 0.2s;
+  -o-transition: bottom 0.2s;
+  transition: bottom 0.2s false;
+  -webkit-box-shadow: 0 0 5px 0 black;
+  -moz-box-shadow: 0 0 5px 0 black;
+  box-shadow: 0 0 5px 0 black; }
+  .chat-frame.active {
+    bottom: 0; }
+  .chat-frame.disable .visibility {
+    height: 100%; }
+  .chat-frame .visibility {
+    position: absolute;
+    height: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.4); }
+  .chat-frame .chat-head {
+    background-color: #cccccc;
+    cursor: pointer;
+    height: 25px;
+    line-height: 25px;
+    text-align: center;
+    font-weight: bolder; }
+  .chat-frame .chat-list {
+    background-color: white;
+    overflow: auto;
+    height: 100%; }
+  .chat-frame .chat-content {
+    height: 230px;
+    background-color: white;
+    overflow: auto; }
+    .chat-frame .chat-content .client {
+      font-weight: bolder; }
+  .chat-frame .chat-status {
+    height: 20px;
+    background-color: white; }
+    .chat-frame .chat-status.typing:before {
+      content: "typing..."; }
+  .chat-frame .chat-message {
+    border-top: solid 1px #cccccc;
+    height: 25px; }
+    .chat-frame .chat-message input {
+      width: 100%;
+      height: 100%;
+      border: none; }
