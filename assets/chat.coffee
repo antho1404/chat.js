@@ -1,7 +1,7 @@
 window.Chat = class Chat
 
   constructor: (@ip, @port) ->
-    @dom_elem = $("<div class='chat-frame active' id='contact_list'><div class='chat-head'>Contacts</div><div class='visibility'/><div class='chat-list'/></div>")
+    @dom_elem = $("<div class='chat-frame active disable' id='contact_list'><div class='chat-head'>Contacts</div><div class='visibility'/><div class='chat-list'/></div>")
     @conversations = []
     window.WebSocket ||= window.MozWebSocket
     return if not window.WebSocket
@@ -20,12 +20,15 @@ window.Chat = class Chat
 
   socketOpen: ->
     $("body").append @dom_elem if $("#contact_list").size() is 0
-    @name = window.location.hash
-    if @name is ""
+    name = window.location.hash.substr 1
+    if name isnt ""
+      @name = name
+    else
       @name = prompt("What's your name ?")
-      window.location.hash = @name
-    @socket.send JSON.stringify( type: "connect", data: { from: @name } )
-    @enable()
+      window.location.hash = @name if @name
+    if @name
+      @socket.send JSON.stringify( type: "connect", data: { from: @name } )
+      @enable()
 
   socketMessage: (message) ->
     json = JSON.parse message.data
@@ -68,7 +71,7 @@ window.Chat = class Chat
       @disable()
       @socket = null
     else
-      @initializeSocket() if not @socket
+      @initializeSocket() if not @socket or not @name
       @enable() if @connected()
 
   disable: -> @dom_elem.addClass "disable"

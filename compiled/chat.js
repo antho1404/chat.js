@@ -11,7 +11,7 @@
       var _this;
       this.ip = ip;
       this.port = port;
-      this.dom_elem = $("<div class='chat-frame active' id='contact_list'><div class='chat-head'>Contacts</div><div class='visibility'/><div class='chat-list'/></div>");
+      this.dom_elem = $("<div class='chat-frame active disable' id='contact_list'><div class='chat-head'>Contacts</div><div class='visibility'/><div class='chat-list'/></div>");
       this.conversations = [];
       window.WebSocket || (window.WebSocket = window.MozWebSocket);
       if (!window.WebSocket) {
@@ -39,21 +39,28 @@
       }, this);
     };
     Chat.prototype.socketOpen = function() {
+      var name;
       if ($("#contact_list").size() === 0) {
         $("body").append(this.dom_elem);
       }
-      this.name = window.location.hash;
-      if (this.name === "") {
+      name = window.location.hash.substr(1);
+      if (name !== "") {
+        this.name = name;
+      } else {
         this.name = prompt("What's your name ?");
-        window.location.hash = this.name;
-      }
-      this.socket.send(JSON.stringify({
-        type: "connect",
-        data: {
-          from: this.name
+        if (this.name) {
+          window.location.hash = this.name;
         }
-      }));
-      return this.enable();
+      }
+      if (this.name) {
+        this.socket.send(JSON.stringify({
+          type: "connect",
+          data: {
+            from: this.name
+          }
+        }));
+        return this.enable();
+      }
     };
     Chat.prototype.socketMessage = function(message) {
       var c, conversation, from, json, _i, _j, _len, _len2, _ref, _ref2, _ref3, _results;
@@ -111,7 +118,7 @@
         this.disable();
         return this.socket = null;
       } else {
-        if (!this.socket) {
+        if (!this.socket || !this.name) {
           this.initializeSocket();
         }
         if (this.connected()) {
