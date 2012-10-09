@@ -134,11 +134,9 @@
   })();
   window.Conversation = Conversation = (function() {
     function Conversation(chat, receiver, i) {
-      var _this;
       this.chat = chat;
       this.receiver = receiver;
       this.typing_visible = false;
-      _this = this;
       this.dom_elem = $("<div class='chat-frame active' style='right:" + (260 * (i + 1) + 10) + "px'><div class='chat-head'>" + this.receiver + "</div><div class='visibility'/><div class='chat-content'/><div class='chat-status'/><div class='chat-message'><input></div></div>");
       this.input = $("input", this.dom_elem);
       $("body").append(this.dom_elem);
