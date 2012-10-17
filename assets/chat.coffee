@@ -33,26 +33,28 @@ window.Chat = class Chat
   socketMessage: (message) ->
     json = JSON.parse message.data
 
-    if json.type is 'message'
-      from = json.data.from
-      if from is @name
-        @getOrCreateConversation(json.data.to).writeMessage json.data
-      else
-        @getOrCreateConversation(json.data.from).writeMessage json.data
-
-    else if json.type is 'event'
-      conversation = @getConversation json.data.from
-      conversation.addEvent json.data if conversation
-
-    else if json.type is "list"
-      $(".chat-list", $("#contact_list")).html ''
-      for c in json.data.val
-        $(".chat-list", $("#contact_list")).append "<div class='contact'>#{c}</div>"
-      for conversation in @conversations
-        if conversation.receiver in json.data.val
-          conversation.enable()
+    switch json.type
+      when 'message'
+        from = json.data.from
+        if from is @name
+          @getOrCreateConversation(json.data.to).writeMessage json.data
         else
-          conversation.disable()
+          @getOrCreateConversation(json.data.from).writeMessage json.data
+
+      when 'event'
+        conversation = @getConversation json.data.from
+        conversation.addEvent json.data if conversation
+
+      when "list"
+        @name = json.data.from
+        $(".chat-list", @dom_elem).html ''
+        for c in json.data.val
+          $(".chat-list", @dom_elem).append "<div class='contact'>#{c}</div>"
+        for conversation in @conversations
+          if conversation.receiver in json.data.val
+            conversation.enable()
+          else
+            conversation.disable()
 
   getOrCreateConversation: (sender) ->
     conversation = @getConversation sender

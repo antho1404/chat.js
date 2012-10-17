@@ -1,4 +1,3 @@
-"use strict"
 webSocketServer = require("websocket").server
 http            = require("http")
 
@@ -19,21 +18,21 @@ wsServer.on "request", (request) ->
     sender   = getClient jsonIn.data.from
     receiver = getClient jsonIn.data.to
 
-    if jsonIn.type is "message"
-      return if not sender or not receiver
-      sender.sendMessage    jsonIn.data.val, sender, receiver
-      receiver.sendMessage  jsonIn.data.val, sender, receiver
-    
-    else if jsonIn.type is "event"
-      return if not receiver
-      receiver.sendData jsonIn
-
-    else if jsonIn.type is "connect"
-      name = jsonIn.data.from if jsonIn.data and jsonIn.data.from
-      return if not name
-      client = connect name, connection
+    switch jsonIn.type
+      when "message"
+        return if not sender or not receiver
+        sender.sendMessage    jsonIn.data.val, sender, receiver
+        receiver.sendMessage  jsonIn.data.val, sender, receiver
       
+      when "event"
+        return if not receiver
+        receiver.sendData jsonIn
 
+      when "connect"
+        name = jsonIn.data.from if jsonIn.data and jsonIn.data.from
+        return if not name
+        client = connect name, connection
+      
 htmlEntities = (str) ->
   String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace /"/g, "&quot;"
   
@@ -42,6 +41,11 @@ sendReceivers = ->
   return
 
 connect = (name, connection) ->
+  i = 1
+  srcName = name
+  while getClient name
+    name = srcName + i
+    i++
   client = new Client(name, connection)
   clients.push client
   sendReceivers()
@@ -60,32 +64,6 @@ getClient = (name) ->
   null
 
 getReceivers = (client) ->
-  result = []
-  for c in clients when c isnt client
-    result.push c.id
-  result
+  c.id for c in clients when c isnt client
 
 server.listen webSocketsServerPort
-
-class Client
-  constructor: (@id, @connection) ->
-
-  dataOut: (type, from=null, to=null) ->
-      type: type
-      data: 
-        from: from.id if from
-        to: to.id if to
-
-  sendData: (data) ->
-    jsonStr = JSON.stringify data
-    @connection.sendUTF jsonStr if @connection
-
-  sendMessage: (value, from, to) ->
-    jsonOut = @dataOut "message", from, to
-    jsonOut.data.val = htmlEntities value
-    @sendData jsonOut
-
-  sendList: (clients) ->
-    jsonOut = @dataOut "list"
-    jsonOut.data.val = clients
-    @sendData jsonOut
