@@ -3,7 +3,7 @@
 
 A node.js chat using websocket
 
-## How to run it
+## How to run it (server side)
 First you need to install dependencies using 
 > npm install
 
@@ -15,7 +15,7 @@ After that you will be able to run the server with
 If you want to use the coffee file don't forget to recompile it before running the server with the command
 > coffee -c server.coffee
 
-## How to use it
+## How to use it (client side)
 You need to include the **chat.css** and **chat.js** (located in **compiled** folder) in your web page and add the following javascript
 > new Chat(address)
 

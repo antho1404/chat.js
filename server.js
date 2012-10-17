@@ -1,5 +1,72 @@
 (function() {
-  var Client, clients, connect, disconnect, getClient, getReceivers, htmlEntities, http, sendReceivers, server, webSocketServer, webSocketsServerPort, wsServer;
+  var Chat, Client, chat, http, server, webSocketServer, webSocketsPort, wsServer;
+
+  Chat = (function() {
+
+    function Chat() {
+      this.clients = [];
+    }
+
+    Chat.prototype.sendReceivers = function() {
+      var c, _i, _len, _ref;
+      _ref = this.clients;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        c = _ref[_i];
+        c.sendList(this.getReceivers(c));
+      }
+    };
+
+    Chat.prototype.connect = function(name, connection) {
+      var client, i, srcName;
+      i = 1;
+      srcName = name;
+      while (this.getClient(name)) {
+        name = srcName + i;
+        i++;
+      }
+      client = new Client(name, connection);
+      this.clients.push(client);
+      this.sendReceivers();
+      return client;
+    };
+
+    Chat.prototype.disconnect = function(client) {
+      var c, _i, _len, _ref;
+      _ref = this.clients;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        c = _ref[_i];
+        if (!(c === client)) continue;
+        delete this.clients[_i];
+        this.clients.splice(_i, 1);
+        this.sendReceivers();
+        return;
+      }
+    };
+
+    Chat.prototype.getClient = function(name) {
+      var c, _i, _len, _ref;
+      _ref = this.clients;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        c = _ref[_i];
+        if (c.id === name) return c;
+      }
+      return null;
+    };
+
+    Chat.prototype.getReceivers = function(client) {
+      var c, _i, _len, _ref, _results;
+      _ref = this.clients;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        c = _ref[_i];
+        if (c !== client) _results.push(c.id);
+      }
+      return _results;
+    };
+
+    return Chat;
+
+  })();
 
   Client = (function() {
 
@@ -21,6 +88,10 @@
       return res;
     };
 
+    Client.prototype.htmlEntities = function(str) {
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    };
+
     Client.prototype.sendData = function(data) {
       var jsonStr;
       jsonStr = JSON.stringify(data);
@@ -30,7 +101,7 @@
     Client.prototype.sendMessage = function(value, from, to) {
       var jsonOut;
       jsonOut = this.dataOut("message", from, to);
-      jsonOut.data.val = htmlEntities(value);
+      jsonOut.data.val = this.htmlEntities(value);
       return this.sendData(jsonOut);
     };
 
@@ -49,9 +120,9 @@
 
   http = require("http");
 
-  webSocketsServerPort = 1337;
+  chat = new Chat();
 
-  clients = [];
+  webSocketsPort = 1337;
 
   server = http.createServer();
 
@@ -64,13 +135,13 @@
     connection = request.accept(null, request.origin);
     client = null;
     connection.on("close", function(connection) {
-      return disconnect(client);
+      return chat.disconnect(client);
     });
     return connection.on("message", function(message) {
       var jsonIn, name, receiver, sender;
       jsonIn = JSON.parse(message.utf8Data);
-      sender = getClient(jsonIn.data.from);
-      receiver = getClient(jsonIn.data.to);
+      sender = chat.getClient(jsonIn.data.from);
+      receiver = chat.getClient(jsonIn.data.to);
       switch (jsonIn.type) {
         case "message":
           if (!sender || !receiver) return;
@@ -82,68 +153,11 @@
         case "connect":
           if (jsonIn.data && jsonIn.data.from) name = jsonIn.data.from;
           if (!name) return;
-          return client = connect(name, connection);
+          return client = chat.connect(name, connection);
       }
     });
   });
 
-  htmlEntities = function(str) {
-    return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-  };
-
-  sendReceivers = function() {
-    var c, _i, _len;
-    for (_i = 0, _len = clients.length; _i < _len; _i++) {
-      c = clients[_i];
-      c.sendList(getReceivers(c));
-    }
-  };
-
-  connect = function(name, connection) {
-    var client, i, srcName;
-    i = 1;
-    srcName = name;
-    while (getClient(name)) {
-      name = srcName + i;
-      i++;
-    }
-    client = new Client(name, connection);
-    clients.push(client);
-    sendReceivers();
-    return client;
-  };
-
-  disconnect = function(client) {
-    var c, _i, _len;
-    for (_i = 0, _len = clients.length; _i < _len; _i++) {
-      c = clients[_i];
-      if (!(c === client)) continue;
-      delete clients[_i];
-      clients.splice(_i, 1);
-      sendReceivers();
-      return;
-    }
-  };
-
-  getClient = function(name) {
-    var c, _i, _len;
-    for (_i = 0, _len = clients.length; _i < _len; _i++) {
-      c = clients[_i];
-      if (c.id === name) return c;
-    }
-    return null;
-  };
-
-  getReceivers = function(client) {
-    var c, _i, _len, _results;
-    _results = [];
-    for (_i = 0, _len = clients.length; _i < _len; _i++) {
-      c = clients[_i];
-      if (c !== client) _results.push(c.id);
-    }
-    return _results;
-  };
-
-  server.listen(webSocketsServerPort);
+  server.listen(webSocketsPort);
 
 }).call(this);

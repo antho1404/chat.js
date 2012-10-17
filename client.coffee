@@ -9,13 +9,16 @@ class Client
     res.data.to   = to.id   if to
     res
 
+  htmlEntities: (str) ->
+    String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace /"/g, "&quot;"
+
   sendData: (data) ->
     jsonStr = JSON.stringify data
     @connection.sendUTF jsonStr if @connection
 
   sendMessage: (value, from, to) ->
     jsonOut = @dataOut "message", from, to
-    jsonOut.data.val = htmlEntities value
+    jsonOut.data.val = @htmlEntities value
     @sendData jsonOut
 
   sendList: (clients) ->
